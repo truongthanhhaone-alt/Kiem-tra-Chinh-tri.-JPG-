@@ -51,7 +51,7 @@
           </button>
         </div>
 
-        <!-- PHẦN BÀI THI (MẶC ĐỊNH ẨN) -->
+        <!-- PHẦN CÂU HỎI BÀI THI (ẨN BAN ĐẦU) -->
         <div id="quizSection" class="hidden space-y-6">
           <div class="flex justify-between items-center bg-yellow-50 p-3 rounded border border-yellow-200">
             <span class="font-bold text-gray-700">Thời gian còn lại:</span>
@@ -59,7 +59,6 @@
           </div>
 
           <form id="quizForm" class="space-y-6">
-            <!-- DANH SÁCH CÂU HỎI SẼ ĐƯỢC TỰ ĐỘNG TẠO Ở ĐÂY -->
             <div id="questionsContainer" class="space-y-6"></div>
 
             <button type="button" onclick="submitExam()" class="w-full bg-red-600 text-white font-bold py-3 rounded hover:bg-red-700 transition">
@@ -100,19 +99,19 @@
     // DÁN LINK GOOGLE APPS SCRIPT CỦA BẠN VÀO ĐÂY
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzY-1t6Vbn2R1jsdozioL2jpbuISulufHyqqVnAfjo3Qa0TdDg9UAHYSEHRAUHv84R-gw/exec";
 
-    // 📋 BỘ CÂU HỎI THI CHÍNH TRỊ (Bạn có thể thêm/sửa câu hỏi tại đây)
+    // BỘ CÂU HỎI THI (Có thể thay đổi hoặc bổ sung thêm)
     const questions = [
       {
         id: 1,
         question: "Câu 1: Chủ tịch Hồ Chí Minh đọc Bản Tuyên ngôn Độc lập vào ngày, tháng, năm nào?",
         options: ["A. 19/08/1945", "B. 02/09/1945", "C. 22/12/1944", "D. 03/02/1930"],
-        answer: 1 // Đáp án đúng là B (chỉ số 1)
+        answer: 1
       },
       {
         id: 2,
         question: "Câu 2: Ngày thành lập Quân đội nhân dân Việt Nam là ngày nào?",
         options: ["A. 22/12/1944", "B. 19/08/1945", "C. 30/04/1975", "D. 02/09/1945"],
-        answer: 0 // Đáp án đúng là A
+        answer: 0
       },
       {
         id: 3,
@@ -144,16 +143,15 @@
       }
     ];
 
-    let timeLeft = 1500; // 25 phút = 1500 giây
+    let timeLeft = 1500; // 25 phút
     let timerInterval;
     let startTime;
 
-    // Render danh sách câu hỏi ra giao diện
     function renderQuestions() {
       const container = document.getElementById('questionsContainer');
       container.innerHTML = '';
       
-      questions.forEach((q, index) => {
+      questions.forEach((q) => {
         let optionsHtml = q.options.map((opt, optIndex) => `
           <label class="flex items-center space-x-2 p-2 rounded hover:bg-gray-50 border border-gray-100 cursor-pointer">
             <input type="radio" name="q_${q.id}" value="${optIndex}" class="w-4 h-4 text-green-600">
@@ -170,7 +168,6 @@
       });
     }
 
-    // Bắt đầu làm bài thi
     function startQuiz() {
       const fullName = document.getElementById('fullName').value.trim();
       if (!fullName) {
@@ -186,7 +183,6 @@
       startTimer();
     }
 
-    // Đếm ngược thời gian
     function startTimer() {
       timerInterval = setInterval(() => {
         timeLeft--;
@@ -203,13 +199,11 @@
       }, 1000);
     }
 
-    // Nộp bài thi
     async function submitExam() {
       clearInterval(timerInterval);
       
-      // Tính điểm
       let score = 0;
-      const pointsPerQuestion = 100 / questions.length; // Điểm tối đa 100
+      const pointsPerQuestion = 100 / questions.length;
 
       questions.forEach(q => {
         const selected = document.querySelector(`input[name="q_${q.id}"]:checked`);
@@ -218,7 +212,6 @@
         }
       });
 
-      // Tính thời gian làm bài
       const endTime = new Date();
       const durationSeconds = Math.floor((endTime - startTime) / 1000);
       const minSpent = Math.floor(durationSeconds / 60);
@@ -236,22 +229,18 @@
 
       alert(`Bạn đã hoàn thành bài thi!\nĐiểm số: ${Math.round(score)}/100\nThời gian: ${timeSpentStr}`);
 
-      // Gửi dữ liệu về Google Sheet
       try {
         await fetch(SCRIPT_URL, {
           method: 'POST',
           body: JSON.stringify(payload)
         });
-        loadLeaderboard();
       } catch (e) {
         console.error("Lỗi gửi dữ liệu:", e);
       }
 
-      // Đưa về trang ban đầu
       location.reload();
     }
 
-    // Lấy Bảng xếp hạng từ Google Sheet
     async function loadLeaderboard() {
       try {
         const res = await fetch(SCRIPT_URL);
@@ -282,7 +271,6 @@
       }
     }
 
-    // Tải bảng xếp hạng khi vừa truy cập trang
     loadLeaderboard();
   </script>
 </body>
